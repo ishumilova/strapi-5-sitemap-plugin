@@ -70,8 +70,5 @@
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/DigitalMoonrise-UG/strapi-5-sitemap-plugin"
-	},
-	"publishConfig": {
-		"@DigitalMoonrise-UG:registry": "https://npm.pkg.github.com"
 	}
 }
