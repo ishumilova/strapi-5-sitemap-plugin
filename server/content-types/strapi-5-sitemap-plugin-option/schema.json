@@ -1,0 +1,25 @@
+{
+	"kind": "singleType",
+	"collectionName": "strapi_5_sitemap_plugin_options",
+	"info": {
+		"singularName": "strapi-5-sitemap-plugin-option",
+		"pluralName": "strapi-5-sitemap-plugin-options",
+		"displayName": "strapi-5-sitemap-plugin-options"
+	},
+	"options": {
+		"comment": ""
+	},
+	"pluginOptions": {
+		"content-manager": {
+			"visible": false
+		},
+		"content-type-builder": {
+			"visible": false
+		}
+	},
+	"attributes": {
+		"baseUrl": {
+			"type": "string"
+		}
+	}
+}

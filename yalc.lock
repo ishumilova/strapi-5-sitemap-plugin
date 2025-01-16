@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "strapi-plugin-sitemap": {
+      "signature": "2c5c6c39a8730f12c2885103f8d72329",
+      "link": true
+    }
+  }
+}

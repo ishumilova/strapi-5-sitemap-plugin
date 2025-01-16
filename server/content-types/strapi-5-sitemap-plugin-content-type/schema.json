@@ -1,0 +1,40 @@
+{
+	"kind": "collectionType",
+	"collectionName": "strapi_5_sitemap_plugin_content_types",
+	"info": {
+		"singularName": "strapi-5-sitemap-plugin-content-type",
+		"pluralName": "strapi-5-sitemap-plugin-content-types",
+		"displayName": "strapi-5-sitemap-plugin-content-type"
+	},
+	"options": {
+		"comment": ""
+	},
+	"pluginOptions": {
+		"content-manager": {
+			"visible": false
+		},
+		"content-type-builder": {
+			"visible": false
+		}
+	},
+	"attributes": {
+		"type": {
+			"type": "string"
+		},
+		"langcode": {
+			"type": "string"
+		},
+		"pattern": {
+			"type": "string"
+		},
+		"priority": {
+			"type": "float"
+		},
+		"frequency": {
+			"type": "string"
+		},
+		"lastModified": {
+			"type": "string"
+		}
+	}
+}
