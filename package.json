@@ -63,15 +63,12 @@
 		"displayName": "Strapi 5 Sitemap Plugin",
 		"description": "Sitemap Plugin for Strapi v5"
 	},
-	"name": "@DigitalMoonrise-UG/strapi-5-sitemap-plugin",
+	"name": "strapi-5-sitemap-plugin",
 	"description": "Sitemap Plugin for Strapi v5",
 	"license": "MIT",
 	"author": "DigitalMoonrise <hi@digitalmoonrise.de>",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/DigitalMoonrise-UG/strapi-5-sitemap-plugin"
-	},
-	"publishConfig": {
-		"@DigitalMoonrise-UG:registry": "https://npm.pkg.github.com"
 	}
 }
