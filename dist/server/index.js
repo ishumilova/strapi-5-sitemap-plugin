@@ -374,7 +374,7 @@ const service = ({ strapi }) => ({
         });
       });
       const customSitemapEntries = customURLs.map((customURL) => ({
-        url: `${baseURL}/${customURL.slug}`,
+        url: `${baseURL}${customURL.slug}`,
         priority: customURL.priority,
         frequency: customURL.frequency
       }));
