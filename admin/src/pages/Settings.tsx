@@ -116,7 +116,7 @@ const Settings = () => {
 		const url = entryToDeleteType === 'collection' ? 'admin' : 'admin-custom-urls';
 
 		try {
-			const response = await fetch(`/${PLUGIN_ID}/${url}?id=${entryToDelete}`, {
+			const response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/${url}?id=${entryToDelete}`, {
 				method: 'DELETE',
 				headers: {
 					'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ const Settings = () => {
 
 	const saveBaseURL = async () => {
 		try {
-			const response = await fetch(`/${PLUGIN_ID}/admin-put-options`, {
+			const response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin-put-options`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',

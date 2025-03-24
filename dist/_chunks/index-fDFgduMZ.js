@@ -43,7 +43,7 @@ const index = {
           id: "sitemap-settings",
           to: `/settings/${PLUGIN_ID}`,
           Component: async () => {
-            return Promise.resolve().then(() => require("./Settings-CokonfO8.js"));
+            return Promise.resolve().then(() => require("./Settings-DRWxiO4M.js"));
           },
           permissions: [{ action: `plugin::${PLUGIN_ID}.settings.read`, subject: null }]
         }

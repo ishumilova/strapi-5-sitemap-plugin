@@ -42,7 +42,7 @@ export default function CustomURLModal({isOpen, setModalOpen, setNewCustomURLAdd
 
 		try {
 			if (typeToEdit && editID) {
-				response = await fetch(`/${PLUGIN_ID}/admin-custom-urls`, {
+				response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin-custom-urls`, {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
@@ -51,7 +51,7 @@ export default function CustomURLModal({isOpen, setModalOpen, setNewCustomURLAdd
 					body: JSON.stringify({slug, priority, frequency, id: editID}),
 				});
 			} else {
-				response = await fetch(`/${PLUGIN_ID}/admin-custom-urls`, {
+				response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin-custom-urls`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
