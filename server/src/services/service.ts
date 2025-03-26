@@ -1,16 +1,10 @@
-import type { Core } from '@strapi/strapi';
+import type {Core} from '@strapi/strapi';
 
-const service = ({ strapi }: { strapi: Core.Strapi }) => ({
+const service = ({strapi}: { strapi: Core.Strapi }) => ({
 	async getSitemap() {
-		const sitemapEntries = await strapi
-			.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type')
-			.findMany();
-		const customURLs = await strapi.db
-			.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url')
-			.findMany();
-		const baseURLObject = await strapi
-			.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-option')
-			.findFirst();
+		const sitemapEntries = await strapi.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type').findMany();
+		const customURLs = await strapi.db.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url').findMany();
+		const baseURLObject = await strapi.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-option').findFirst();
 		const baseURL = baseURLObject.baseUrl;
 
 		try {
@@ -18,13 +12,10 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 			const sitemap = [];
 
 			for (const sitemapEntry of sitemapEntries) {
-				const entries = await strapi
-					.documents(`api::${sitemapEntry.type}.${sitemapEntry.type}`)
-					.findMany({
-						locale: sitemapEntry.langcode === '-' ? undefined : sitemapEntry.langcode,
-						status: 'published',
-					});
-
+				const entries = await strapi.documents(`api::${sitemapEntry.type}.${sitemapEntry.type}`).findMany({
+					locale: sitemapEntry.langcode === '-' ? undefined : sitemapEntry.langcode,
+					status: 'published',
+				});
 				collections.push({ ...sitemapEntry, entries });
 			}
 
@@ -78,8 +69,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 					            <changefreq>${entry.frequency}</changefreq>
 					            ${entry.lastmod ? `<lastmod>${entry.lastmod}</lastmod>` : ''}
 					        </url>`
-					)
-					.join('');
+					).join('');
 
 				return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urlSet}</urlset>`;
 			};
@@ -92,11 +82,9 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 	},
 	async saveAdminData(data: any) {
 		try {
-			const result = await strapi.db
-				.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type')
-				.create({
-					data,
-				});
+			const result = await strapi.db.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type').create({
+				data,
+			});
 
 			return {
 				message: 'Data saved successfully',
@@ -109,9 +97,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 	},
 	async getAdminData() {
 		try {
-			const results = await strapi.db
-				.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type')
-				.findMany();
+			const results = await strapi.db.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type').findMany();
 
 			return {
 				results,
@@ -134,7 +120,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 					displayName: contentTypes[key].info.displayName,
 				}));
 
-			return { collectionTypes };
+			return {collectionTypes};
 		} catch (error) {
 			strapi.log.error('Error fetching content types:', error);
 			throw new Error('Failed to fetch content types');
@@ -149,14 +135,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 		}
 	},
 	async getAllowedFields(contentTypeSingularName) {
-		const systemFields = [
-			'createdAt',
-			'updatedAt',
-			'publishedAt',
-			'createdBy',
-			'updatedBy',
-			'locale',
-		];
+		const systemFields = ['createdAt', 'updatedAt', 'publishedAt', 'createdBy', 'updatedBy', 'locale'];
 
 		const contentType = Object.values(strapi.contentTypes).find(
 			(type) => type.info.singularName === contentTypeSingularName
@@ -164,28 +143,29 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 
 		const fields = [];
 
-		Object.entries(contentType.attributes).forEach(
-			([fieldName, field]: [fieldName: string, field: any]) => {
-				if (
-					!systemFields.includes(fieldName) &&
-					field.type !== 'relation' &&
-					field.type !== 'component'
-				) {
-					fields.push(fieldName);
-				} else if (
-					field.type === 'relation' &&
-					field.relation.endsWith('ToOne') &&
-					!['createdBy', 'updatedBy'].includes(fieldName)
-				) {
-					fields.push(`${fieldName}.id`);
-				} else if (field.type === 'component' && !field.repeatable) {
-					const component = strapi.components[field.component];
-					Object.keys(component.attributes).forEach((subFieldName) => {
-						fields.push(`${fieldName}.${subFieldName}`);
-					});
-				}
+		Object.entries(contentType.attributes).forEach(([fieldName, field] : [fieldName: string, field: any]) => {
+			if (
+				!systemFields.includes(fieldName) &&
+				field.type !== 'relation' &&
+				field.type !== 'component'
+			) {
+				fields.push(fieldName);
+			} else if (
+				field.type === 'relation' &&
+				field.relation.endsWith('ToOne') &&
+				!['createdBy', 'updatedBy'].includes(fieldName)
+			) {
+				fields.push(`${fieldName}.id`);
+			} else if (
+				field.type === 'component' &&
+				!field.repeatable
+			) {
+				const component = strapi.components[field.component];
+				Object.keys(component.attributes).forEach((subFieldName) => {
+					fields.push(`${fieldName}.${subFieldName}`);
+				});
 			}
-		);
+		});
 
 		if (!fields.includes('id')) {
 			fields.push('id');
@@ -198,19 +178,17 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 	},
 	async updateAdminData(data) {
 		try {
-			const result = await strapi.db
-				.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type')
-				.update({
-					where: { id: data.id },
-					data: {
-						type: data.type,
-						langcode: data.langcode,
-						pattern: data.pattern,
-						priority: data.priority,
-						frequency: data.frequency,
-						lastModified: data.lastModified,
-					},
-				});
+			const result = await strapi.db.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type').update({
+				where: {id: data.id},
+				data: {
+					type: data.type,
+					langcode: data.langcode,
+					pattern: data.pattern,
+					priority: data.priority,
+					frequency: data.frequency,
+					lastModified: data.lastModified,
+				},
+			});
 
 			return {
 				message: 'Data saved successfully',
@@ -223,13 +201,11 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 	},
 	async deleteAdminData(id) {
 		try {
-			const result = await strapi
-				.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type')
-				.delete({
-					where: {
-						id: id,
-					},
-				});
+			const result = await strapi.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type').delete({
+				where: {
+					id: id,
+				},
+			});
 
 			return {
 				message: 'Data deleted successfully',
@@ -242,13 +218,11 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 	},
 	async getOptions() {
 		try {
-			const results = await strapi
-				.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-option')
-				.findFirst();
+			const results = await strapi.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-option').findFirst();
 			if (results) {
-				return { baseUrl: results.baseUrl };
+				return {baseUrl: results.baseUrl};
 			} else {
-				return { baseUrl: '' };
+				return {baseUrl: ''};
 			}
 		} catch (error) {
 			strapi.log.error('Error fetching locales:', error);
@@ -257,29 +231,23 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 	},
 	async updateOptions(data) {
 		try {
-			const results = await strapi
-				.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-option')
-				.findFirst();
+			const results = await strapi.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-option').findFirst();
 			let response = null;
 
 			if (results) {
-				response = await strapi
-					.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-option')
-					.update({
-						documentId: results.documentId,
-						data: {
-							// @ts-ignore
-							baseUrl: data.baseURL,
-						},
-					});
+				response = await strapi.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-option').update({
+					documentId: results.documentId,
+					data: {
+						// @ts-ignore
+						baseUrl: data.baseURL,
+					},
+				});
 			} else {
-				response = await strapi.db
-					.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-option')
-					.create({
-						data: {
-							baseUrl: data.baseURL,
-						},
-					});
+				response = await strapi.db.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-option').create({
+					data: {
+						baseUrl: data.baseURL,
+					},
+				});
 			}
 
 			return {
@@ -293,11 +261,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 	},
 	async getCustomURLs() {
 		try {
-			const results = await strapi
-				.documents(
-					'plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url'
-				)
-				.findMany();
+			const results = await strapi.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url').findMany();
 
 			return {
 				results,
@@ -309,13 +273,9 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 	},
 	async postCustomURLs(data) {
 		try {
-			const result = await strapi
-				.documents(
-					'plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url'
-				)
-				.create({
-					data,
-				});
+			const result = await strapi.documents('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url').create({
+				data,
+			});
 
 			return {
 				message: 'Data saved successfully',
@@ -328,16 +288,14 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 	},
 	async putCustomURLs(data) {
 		try {
-			const result = await strapi.db
-				.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url')
-				.update({
-					where: { id: data.id },
-					data: {
-						slug: data.slug,
-						priority: data.priority,
-						frequency: data.frequency,
-					},
-				});
+			const result = await strapi.db.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url').update({
+				where: {id: data.id},
+				data: {
+					slug: data.slug,
+					priority: data.priority,
+					frequency: data.frequency,
+				},
+			});
 
 			return {
 				message: 'Data saved successfully',
@@ -350,13 +308,11 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 	},
 	async deleteCustomURLs(id) {
 		try {
-			const result = await strapi.db
-				.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url')
-				.delete({
-					where: {
-						id: id,
-					},
-				});
+			const result = await strapi.db.query('plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url').delete({
+				where: {
+					id: id,
+				},
+			});
 
 			return {
 				message: 'Data deleted successfully',
@@ -366,7 +322,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => ({
 			strapi.log.error('Error deleting data:', error);
 			throw new Error('Failed to delete data');
 		}
-	},
+	}
 });
 
 export default service;
