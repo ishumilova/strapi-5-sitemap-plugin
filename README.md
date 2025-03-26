@@ -35,6 +35,12 @@ The **Sitemap Plugin for Strapi v5** is a powerful tool to dynamically generate 
 npm install strapi-5-sitemap-plugin
 ```
 
+### Add an environment variable
+If your Strapi backend is not hosted on the root of your domain, you need to add an environment variable to your `.env` file:
+```bash
+STRAPI_ADMIN_BACKEND_URL=https://your-strapi-backend.tld/with/directories
+```
+
 ### Make the sitemap.xml file available
 1. Go to **Settings**:
 2. Select **Roles** unter **Users & Permissions**.
