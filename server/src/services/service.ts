@@ -8,44 +8,47 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 		const baseURL = baseURLObject.baseUrl;
 
 		try {
-			const results = [];
+			const collections = [];
+			const sitemap = [];
 
 			for (const sitemapEntry of sitemapEntries) {
 				const entries = await strapi.documents(`api::${sitemapEntry.type}.${sitemapEntry.type}`).findMany({
 					locale: sitemapEntry.langcode === '-' ? undefined : sitemapEntry.langcode,
 					status: 'published',
 				});
-
-				results.push({...sitemapEntry, entries});
+				collections.push({ ...sitemapEntry, entries });
 			}
 
-			const sitemap = results.flatMap((entryGroup) => {
-				const {pattern, priority, frequency, entries, lastModified} = entryGroup;
-
-				return entries.map((entry) => {
+			collections.forEach((collection) => {
+				const { pattern, priority, frequency, entries, lastModified } = collection;
+				outerloop: for (const entry of entries) {
 					let url = pattern;
 
 					const placeholders = pattern.match(/\[([^\]]+)\]/g) || [];
-					placeholders.forEach((placeholder) => {
+					for (const placeholder of placeholders) {
 						const key = placeholder.replace(/\[|\]/g, '');
-						url = url.replace(placeholder, entry[key] || 'unknown');
-						url = baseURL + url;
-					});
+						if (entry[key]) {
+							url = url.replace(placeholder, entry[key]);
+						} else {
+							break outerloop;
+						}
+					}
+
+					url = baseURL + url;
 
 					const sitemapEntry = {
 						url,
 						priority,
 						frequency,
-						lastmod: undefined
-
+						lastmod: undefined,
 					};
 
 					if (lastModified === 'true') {
 						sitemapEntry.lastmod = entry.updatedAt;
 					}
 
-					return sitemapEntry;
-				});
+					sitemap.push(sitemapEntry);
+				}
 			});
 
 			const customSitemapEntries = customURLs.map((customURL) => ({
@@ -54,7 +57,7 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 				frequency: customURL.frequency,
 			}));
 
-			const fullSitemap = [...sitemap, ...customSitemapEntries];
+			sitemap.push(...customSitemapEntries);
 
 			const generateXML = (sitemap) => {
 				const urlSet = sitemap
@@ -69,9 +72,9 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 					).join('');
 
 				return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urlSet}</urlset>`;
-			}
+			};
 
-			return generateXML(fullSitemap);
+			return generateXML(sitemap);
 		} catch (error) {
 			strapi.log.error('Error fetching entries:', error);
 			throw new Error('Failed to fetch entries for types');
@@ -221,7 +224,6 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 			} else {
 				return {baseUrl: ''};
 			}
-
 		} catch (error) {
 			strapi.log.error('Error fetching locales:', error);
 			throw new Error('Failed to fetch locales');
@@ -247,7 +249,6 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 					},
 				});
 			}
-
 
 			return {
 				message: 'Data saved successfully',

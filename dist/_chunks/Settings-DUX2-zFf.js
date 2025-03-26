@@ -4,10 +4,11 @@ const jsxRuntime = require("react/jsx-runtime");
 const react = require("react");
 const designSystem = require("@strapi/design-system");
 const icons = require("@strapi/icons");
-const index = require("./index-BMmT_qT8.js");
+const index = require("./index-ULvMKw2_.js");
+const BASE_URL = () => process.env.STRAPI_ADMIN_BACKEND_URL && process.env.STRAPI_ADMIN_BACKEND_URL !== "/" ? process.env.STRAPI_ADMIN_BACKEND_URL : "";
 const fetchFromAPI = async (endpoint, method = "GET") => {
   const jwtToken = getJwtToken();
-  const response = await fetch(`/${index.PLUGIN_ID}/${endpoint}`, {
+  const response = await fetch(`${BASE_URL}/${index.PLUGIN_ID}/${endpoint}`, {
     method,
     headers: {
       "Content-Type": "application/json",
@@ -70,7 +71,7 @@ function CollectionTypeModal({ isOpen, setModalOpen, setNewCollectionTypeAdded, 
     let response = null;
     try {
       if (typeToEdit && editID) {
-        response = await fetch(`/${index.PLUGIN_ID}/admin`, {
+        response = await fetch(`${BASE_URL}/${index.PLUGIN_ID}/admin`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -79,7 +80,7 @@ function CollectionTypeModal({ isOpen, setModalOpen, setNewCollectionTypeAdded, 
           body: JSON.stringify({ type, langcode, pattern, priority, frequency, lastModified, id: editID })
         });
       } else {
-        response = await fetch(`/${index.PLUGIN_ID}/admin`, {
+        response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${index.PLUGIN_ID}/admin`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -128,7 +129,7 @@ function CollectionTypeModal({ isOpen, setModalOpen, setNewCollectionTypeAdded, 
   }, [typeToEdit]);
   react.useEffect(() => {
     const getContentTypes = async () => {
-      const response = await fetch(`/${index.PLUGIN_ID}/admin-get-content-types`, {
+      const response = await fetch(`${BASE_URL}/${index.PLUGIN_ID}/admin-get-content-types`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -143,7 +144,7 @@ function CollectionTypeModal({ isOpen, setModalOpen, setNewCollectionTypeAdded, 
       }
     };
     const getLocales = async () => {
-      const response = await fetch(`/${index.PLUGIN_ID}/admin-get-locales`, {
+      const response = await fetch(`${BASE_URL}/${index.PLUGIN_ID}/admin-get-locales`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -163,7 +164,7 @@ function CollectionTypeModal({ isOpen, setModalOpen, setNewCollectionTypeAdded, 
   react.useEffect(() => {
     if (type) {
       const getAllowedFields = async () => {
-        const response = await fetch(`/${index.PLUGIN_ID}/admin-allowed-fields?type=${type}`, {
+        const response = await fetch(`${BASE_URL}/${index.PLUGIN_ID}/admin-allowed-fields?type=${type}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -287,7 +288,7 @@ function CustomURLModal({ isOpen, setModalOpen, setNewCustomURLAdded, typeToEdit
     let response = null;
     try {
       if (typeToEdit && editID) {
-        response = await fetch(`/${index.PLUGIN_ID}/admin-custom-urls`, {
+        response = await fetch(`${BASE_URL}/${index.PLUGIN_ID}/admin-custom-urls`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -296,7 +297,7 @@ function CustomURLModal({ isOpen, setModalOpen, setNewCustomURLAdded, typeToEdit
           body: JSON.stringify({ slug, priority, frequency, id: editID })
         });
       } else {
-        response = await fetch(`/${index.PLUGIN_ID}/admin-custom-urls`, {
+        response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${index.PLUGIN_ID}/admin-custom-urls`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -401,7 +402,7 @@ const Settings = () => {
   const [entryToDelete, setEntryToDelete] = react.useState(null);
   const [entryToDeleteType, setEntryToDeleteType] = react.useState("");
   const [baseURL, setBaseURL] = react.useState("");
-  react.useState("");
+  const [jwtToken, setJwtToken] = react.useState("");
   react.useEffect(() => {
     const fetchData = async () => {
       const data = await fetchFromAPI("admin");
@@ -478,7 +479,7 @@ const Settings = () => {
   const confirmDelete = async () => {
     const url = entryToDeleteType === "collection" ? "admin" : "admin-custom-urls";
     try {
-      const response = await fetch(`/${index.PLUGIN_ID}/${url}?id=${entryToDelete}`, {
+      const response = await fetch(`${BASE_URL}/${index.PLUGIN_ID}/${url}?id=${entryToDelete}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -507,7 +508,7 @@ const Settings = () => {
   };
   const saveBaseURL = async () => {
     try {
-      const response = await fetch(`/${index.PLUGIN_ID}/admin-put-options`, {
+      const response = await fetch(`${BASE_URL}/${index.PLUGIN_ID}/admin-put-options`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

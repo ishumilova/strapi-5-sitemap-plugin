@@ -42,7 +42,7 @@ const index = {
           id: "sitemap-settings",
           to: `/settings/${PLUGIN_ID}`,
           Component: async () => {
-            return import("./Settings-DpXk9rSE.mjs");
+            return import("./Settings-CqO6cj0i.mjs");
           },
           permissions: [{ action: `plugin::${PLUGIN_ID}.settings.read`, subject: null }]
         }

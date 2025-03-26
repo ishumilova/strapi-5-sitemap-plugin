@@ -4,7 +4,7 @@ import { Field } from "@strapi/design-system";
 import { Modal } from "@strapi/design-system";
 import React, {useEffect, useRef, useState} from "react";
 import {PLUGIN_ID} from "../pluginId";
-import {getJwtToken} from "../utils/helpers";
+import {getJwtToken, BASE_URL} from "../utils/helpers";
 export default function CustomURLModal({isOpen, setModalOpen, setNewCustomURLAdded, typeToEdit = '', setTypeToEdit, editID = '', setEditID}: {isOpen: boolean, setModalOpen: React.Dispatch<React.SetStateAction<boolean>>, setNewCustomURLAdded: React.Dispatch<React.SetStateAction<boolean>>, typeToEdit: any, setTypeToEdit: React.Dispatch<React.SetStateAction<string>>, editID: string, setEditID: React.Dispatch<React.SetStateAction<string>>}) {
 	const [slug, setSlug] = useState('');
 	const [priority, setPriority] = useState('');
@@ -42,7 +42,7 @@ export default function CustomURLModal({isOpen, setModalOpen, setNewCustomURLAdd
 
 		try {
 			if (typeToEdit && editID) {
-				response = await fetch(`/${PLUGIN_ID}/admin-custom-urls`, {
+				response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-custom-urls`, {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
@@ -51,7 +51,7 @@ export default function CustomURLModal({isOpen, setModalOpen, setNewCustomURLAdd
 					body: JSON.stringify({slug, priority, frequency, id: editID}),
 				});
 			} else {
-				response = await fetch(`/${PLUGIN_ID}/admin-custom-urls`, {
+				response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin-custom-urls`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
