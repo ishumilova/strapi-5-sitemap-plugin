@@ -4,7 +4,7 @@ import { Field } from "@strapi/design-system";
 import { Modal } from "@strapi/design-system";
 import React, {useEffect, useRef, useState} from "react";
 import {PLUGIN_ID} from "../pluginId";
-import {getJwtToken} from "../utils/helpers";
+import {getJwtToken, BASE_URL} from "../utils/helpers";
 
 interface CollectionType {
 	uid: string;
@@ -63,7 +63,7 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 
 		try {
 			if (typeToEdit && editID) {
-				response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin`, {
+				response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin`, {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
@@ -125,7 +125,7 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 
 	useEffect(() => {
 		const getContentTypes = async () => {
-			const response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin-get-content-types`, {
+			const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-get-content-types`, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 		}
 
 		const getLocales = async () => {
-			const response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin-get-locales`, {
+			const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-get-locales`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -167,7 +167,7 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 	useEffect(() => {
 		if (type) {
 			const getAllowedFields = async () => {
-				const response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin-allowed-fields?type=${type}`, {
+				const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-allowed-fields?type=${type}`, {
 					method: 'GET',
 					headers: {
 						'Content-Type': 'application/json',

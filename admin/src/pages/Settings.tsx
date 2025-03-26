@@ -6,7 +6,7 @@ import CollectionTypeModal from "../components/CollectionTypeModal";
 import {PLUGIN_ID} from "../pluginId";
 import { Modal } from '@strapi/design-system';
 import CustomURLModal from "../components/CustomURLModal";
-import {fetchFromAPI, getJwtToken} from "../utils/helpers";
+import {fetchFromAPI, getJwtToken, BASE_URL} from "../utils/helpers";
 
 const Settings = () => {
 	const [collectionTypes, setCollectionTypes] = useState<any[]>([]);
@@ -116,7 +116,7 @@ const Settings = () => {
 		const url = entryToDeleteType === 'collection' ? 'admin' : 'admin-custom-urls';
 
 		try {
-			const response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/${url}?id=${entryToDelete}`, {
+			const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/${url}?id=${entryToDelete}`, {
 				method: 'DELETE',
 				headers: {
 					'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ const Settings = () => {
 
 	const saveBaseURL = async () => {
 		try {
-			const response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin-put-options`, {
+			const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-put-options`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',

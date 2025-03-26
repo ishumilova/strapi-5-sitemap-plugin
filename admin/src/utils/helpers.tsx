@@ -1,9 +1,14 @@
 import {PLUGIN_ID} from "../pluginId";
 
+export const BASE_URL = (): string =>
+	process.env.STRAPI_ADMIN_BACKEND_URL && process.env.STRAPI_ADMIN_BACKEND_URL !== '/'
+		? process.env.STRAPI_ADMIN_BACKEND_URL
+		: '';
+
 export const fetchFromAPI = async (endpoint: string, method: string = "GET") => {
 	const jwtToken = getJwtToken();
 
-	const response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/${endpoint}`, {
+	const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/${endpoint}`, {
 		method,
 		headers: {
 			"Content-Type": "application/json",
