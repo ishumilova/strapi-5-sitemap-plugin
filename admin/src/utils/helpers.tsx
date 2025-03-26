@@ -5,7 +5,7 @@ export const BASE_URL = (): string =>
 		? process.env.STRAPI_ADMIN_BACKEND_URL
 		: '';
 
-export const fetchFromAPI = async (endpoint: string, method: string = "GET") => {
+export const fetchFromAPI = async (endpoint: string, method: string = 'GET') => {
 	const jwtToken = getJwtToken();
 
 	const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/${endpoint}`, {

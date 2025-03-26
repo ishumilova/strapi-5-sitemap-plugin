@@ -95,11 +95,11 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 				setTypeToEdit('');
 				setModalOpen(false);
 			} else {
-				alert("Error while saving!");
+				alert('Error while saving!');
 			}
 		} catch (err) {
 			console.error(err);
-			alert("An unexpected error occurred.");
+			alert('An unexpected error occurred.');
 		}
 	};
 
@@ -138,7 +138,7 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 				setCollectionTypes(data.collectionTypes);
 			}
 			else {
-				alert("Error while loading!");
+				alert('Error while loading!');
 			}
 		}
 
@@ -156,7 +156,7 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 				setLocales(data);
 			}
 			else {
-				alert("Error while loading!");
+				alert('Error while loading!');
 			}
 		}
 

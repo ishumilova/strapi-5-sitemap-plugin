@@ -71,11 +71,11 @@ export default function CustomURLModal({isOpen, setModalOpen, setNewCustomURLAdd
 				setTypeToEdit('');
 				setModalOpen(false);
 			} else {
-				alert("Error while saving!");
+				alert('Error while saving!');
 			}
 		} catch (err) {
 			console.error(err);
-			alert("An unexpected error occurred.");
+			alert('An unexpected error occurred.');
 		}
 	};
 
