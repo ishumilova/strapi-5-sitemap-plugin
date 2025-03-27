@@ -450,32 +450,23 @@ const service = ({ strapi }) => ({
     }
   },
   async getAllowedFields(contentTypeSingularName) {
-    const systemFields = [
-      "createdAt",
-      "updatedAt",
-      "publishedAt",
-      "createdBy",
-      "updatedBy",
-      "locale"
-    ];
+    const systemFields = ["createdAt", "updatedAt", "publishedAt", "createdBy", "updatedBy", "locale"];
     const contentType2 = Object.values(strapi.contentTypes).find(
       (type) => type.info.singularName === contentTypeSingularName
     );
     const fields = [];
-    Object.entries(contentType2.attributes).forEach(
-      ([fieldName, field]) => {
-        if (!systemFields.includes(fieldName) && field.type !== "relation" && field.type !== "component") {
-          fields.push(fieldName);
-        } else if (field.type === "relation" && field.relation.endsWith("ToOne") && !["createdBy", "updatedBy"].includes(fieldName)) {
-          fields.push(`${fieldName}.id`);
-        } else if (field.type === "component" && !field.repeatable) {
-          const component = strapi.components[field.component];
-          Object.keys(component.attributes).forEach((subFieldName) => {
-            fields.push(`${fieldName}.${subFieldName}`);
-          });
-        }
+    Object.entries(contentType2.attributes).forEach(([fieldName, field]) => {
+      if (!systemFields.includes(fieldName) && field.type !== "relation" && field.type !== "component") {
+        fields.push(fieldName);
+      } else if (field.type === "relation" && field.relation.endsWith("ToOne") && !["createdBy", "updatedBy"].includes(fieldName)) {
+        fields.push(`${fieldName}.id`);
+      } else if (field.type === "component" && !field.repeatable) {
+        const component = strapi.components[field.component];
+        Object.keys(component.attributes).forEach((subFieldName) => {
+          fields.push(`${fieldName}.${subFieldName}`);
+        });
       }
-    );
+    });
     if (!fields.includes("id")) {
       fields.push("id");
     }
@@ -565,9 +556,7 @@ const service = ({ strapi }) => ({
   },
   async getCustomURLs() {
     try {
-      const results = await strapi.documents(
-        "plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url"
-      ).findMany();
+      const results = await strapi.documents("plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url").findMany();
       return {
         results
       };
@@ -578,9 +567,7 @@ const service = ({ strapi }) => ({
   },
   async postCustomURLs(data) {
     try {
-      const result = await strapi.documents(
-        "plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url"
-      ).create({
+      const result = await strapi.documents("plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-content-type-single-url").create({
         data
       });
       return {

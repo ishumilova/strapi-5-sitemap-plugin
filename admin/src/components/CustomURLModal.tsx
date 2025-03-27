@@ -3,9 +3,25 @@ import { Grid } from "@strapi/design-system";
 import { Field } from "@strapi/design-system";
 import { Modal } from "@strapi/design-system";
 import React, {useEffect, useRef, useState} from "react";
-import {PLUGIN_ID} from "../pluginId";
-import {getJwtToken, BASE_URL} from "../utils/helpers";
-export default function CustomURLModal({isOpen, setModalOpen, setNewCustomURLAdded, typeToEdit = '', setTypeToEdit, editID = '', setEditID}: {isOpen: boolean, setModalOpen: React.Dispatch<React.SetStateAction<boolean>>, setNewCustomURLAdded: React.Dispatch<React.SetStateAction<boolean>>, typeToEdit: any, setTypeToEdit: React.Dispatch<React.SetStateAction<string>>, editID: string, setEditID: React.Dispatch<React.SetStateAction<string>>}) {
+import { PLUGIN_ID } from '../pluginId';
+import { getFetchClient } from '@strapi/strapi/admin';
+export default function CustomURLModal({
+	isOpen,
+	setModalOpen,
+	setNewCustomURLAdded,
+	typeToEdit = '',
+	setTypeToEdit,
+	editID = '',
+	setEditID,
+}: {
+	isOpen: boolean;
+	setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+	setNewCustomURLAdded: React.Dispatch<React.SetStateAction<boolean>>;
+	typeToEdit: any;
+	setTypeToEdit: React.Dispatch<React.SetStateAction<string>>;
+	editID: string;
+	setEditID: React.Dispatch<React.SetStateAction<string>>;
+}) {
 	const [slug, setSlug] = useState('');
 	const [priority, setPriority] = useState('');
 	const [frequency, setFrequency] = useState('');
@@ -14,12 +30,14 @@ export default function CustomURLModal({isOpen, setModalOpen, setNewCustomURLAdd
 	const priorityRef = useRef<HTMLInputElement>(null);
 	const frequencyRef = useRef<HTMLInputElement>(null);
 
+	const { put, post } = getFetchClient();
+
 	const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (event: React.ChangeEvent<HTMLInputElement>) => {
-		setter(event.target.value);
-	};
+			setter(event.target.value);
+		};
 	const handleSelectChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (event: string) => {
-		setter(event);
-	};
+			setter(event);
+		};
 	const validateFields = () => {
 		if (!slug) {
 			slugRef.current?.focus();
@@ -42,40 +60,27 @@ export default function CustomURLModal({isOpen, setModalOpen, setNewCustomURLAdd
 
 		try {
 			if (typeToEdit && editID) {
-				response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-custom-urls`, {
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-						'Authorization': 'Bearer ' + getJwtToken(),
-					},
-					body: JSON.stringify({slug, priority, frequency, id: editID}),
+				response = await put(`/${PLUGIN_ID}/admin-custom-urls`, {
+					slug,
+					priority,
+					frequency,
+					id: editID,
 				});
 			} else {
-				response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin-custom-urls`, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						'Authorization': 'Bearer ' + getJwtToken(),
-					},
-					body: JSON.stringify({slug, priority, frequency}),
-				});
+				response = await post(`/${PLUGIN_ID}/admin-custom-urls`, { slug, priority, frequency });
 			}
 
-			if (response.ok) {
-				const data = await response.json();
-				setNewCustomURLAdded(true);
-				setSlug('');
-				setPriority('');
-				setFrequency('');
-				setEditID('');
-				setTypeToEdit('');
-				setModalOpen(false);
-			} else {
-				alert('Error while saving!');
-			}
+			const data = response.data;
+			setNewCustomURLAdded(true);
+			setSlug('');
+			setPriority('');
+			setFrequency('');
+			setEditID('');
+			setTypeToEdit('');
+			setModalOpen(false);
 		} catch (err) {
 			console.error(err);
-			alert('An unexpected error occurred.');
+			alert("An unexpected error occurred.");
 		}
 	};
 
@@ -99,7 +104,6 @@ export default function CustomURLModal({isOpen, setModalOpen, setNewCustomURLAdd
 			setModalOpen(false);
 		}
 	};
-
 
 	return (
 		<Modal.Root open={isOpen} onOpenChange={(e: boolean) => handleOnOpenChange(e)}>
@@ -156,7 +160,7 @@ export default function CustomURLModal({isOpen, setModalOpen, setNewCustomURLAdd
 				<Modal.Footer>
 					<Modal.Close>
 						<Button variant="tertiary" onClick={() => {
-							setTypeToEdit('');
+								setTypeToEdit('');
 							setModalOpen(false)
 						}}>Cancel</Button>
 					</Modal.Close>

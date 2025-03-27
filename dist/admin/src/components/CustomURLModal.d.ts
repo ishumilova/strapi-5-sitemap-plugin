@@ -1,5 +1,5 @@
 import React from "react";
-export default function CustomURLModal({ isOpen, setModalOpen, setNewCustomURLAdded, typeToEdit, setTypeToEdit, editID, setEditID }: {
+export default function CustomURLModal({ isOpen, setModalOpen, setNewCustomURLAdded, typeToEdit, setTypeToEdit, editID, setEditID, }: {
     isOpen: boolean;
     setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setNewCustomURLAdded: React.Dispatch<React.SetStateAction<boolean>>;

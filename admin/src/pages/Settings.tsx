@@ -6,7 +6,7 @@ import CollectionTypeModal from "../components/CollectionTypeModal";
 import {PLUGIN_ID} from "../pluginId";
 import { Modal } from '@strapi/design-system';
 import CustomURLModal from "../components/CustomURLModal";
-import {fetchFromAPI, getJwtToken, BASE_URL} from "../utils/helpers";
+import { getFetchClient } from '@strapi/strapi/admin';
 
 const Settings = () => {
 	const [collectionTypes, setCollectionTypes] = useState<any[]>([]);
@@ -27,45 +27,46 @@ const Settings = () => {
 
 	const [baseURL, setBaseURL] = useState('');
 
-	const [jwtToken, setJwtToken] = useState('');
-
-
+	const { get, put, del } = getFetchClient();
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const data = await fetchFromAPI('admin');
-			if (data) {
+			try {
+				const { data } = await get(`/${PLUGIN_ID}/admin`);
 				setCollectionTypes(data.results);
+			} catch (err) {
+				console.error(err);
+				alert('An unexpected error occurred');
 			}
-		}
+		};
 
 		fetchData();
 
 		const fetchBaseUrl = async () => {
-			const data = await fetchFromAPI('admin-get-options');
-			if (data?.baseUrl) {
+			const { data } = await get(`/${PLUGIN_ID}/admin-get-options`);
+			if (data.baseUrl) {
 				setBaseURL(data.baseUrl);
 			}
-		}
+		};
 		fetchBaseUrl();
 
 		const fetchCustomURLs = async () => {
-			const data = await fetchFromAPI('admin-custom-urls');
+			const { data } = await get(`/${PLUGIN_ID}/admin-custom-urls`);
 			if (data) {
 				setCustomURLs(data.results);
 			}
-		}
+		};
 		fetchCustomURLs();
 	}, []);
 
 	useEffect(() => {
 		if (newCollectionTypeAdded) {
 			const fetchData = async () => {
-				const data = await fetchFromAPI('admin');
+				const { data } = await get(`/${PLUGIN_ID}/admin`);
 				if (data) {
 					setCollectionTypes(data.results);
 				}
-			}
+			};
 			fetchData();
 			setNewCollectionTypeAdded(false);
 		}
@@ -74,11 +75,11 @@ const Settings = () => {
 	useEffect(() => {
 		if (newCustomURLAdded) {
 			const fetchData = async () => {
-				const data = await fetchFromAPI('admin-custom-urls');
+				const { data } = await get(`/${PLUGIN_ID}/admin-custom-urls`);
 				if (data) {
 					setCustomURLs(data.results);
 				}
-			}
+			};
 			fetchData();
 			setNewCustomURLAdded(false);
 		}
@@ -110,32 +111,22 @@ const Settings = () => {
 			setDeleteModalOpen(true);
 			setEntryToDeleteType('customURL');
 		}
-	}
+	};
 
 	const confirmDelete = async () => {
 		const url = entryToDeleteType === 'collection' ? 'admin' : 'admin-custom-urls';
 
 		try {
-			const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/${url}?id=${entryToDelete}`, {
-				method: 'DELETE',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + getJwtToken(),
-				},
-			});
+			await del(`/${PLUGIN_ID}/${url}?id=${entryToDelete}`);
 
-			if (response.ok) {
-				if (entryToDeleteType === 'collection') {
-					setNewCollectionTypeAdded(true);
-				} else if (entryToDeleteType === 'customURL') {
-					setNewCustomURLAdded(true);
-				}
-				setDeleteModalOpen(false);
-				setEntryToDelete(null);
-				setEntryToDeleteType('');
-			} else {
-				alert('Error while deleting!');
+			if (entryToDeleteType === 'collection') {
+				setNewCollectionTypeAdded(true);
+			} else if (entryToDeleteType === 'customURL') {
+				setNewCustomURLAdded(true);
 			}
+			setDeleteModalOpen(false);
+			setEntryToDelete(null);
+			setEntryToDeleteType('');
 		} catch (err) {
 			console.error(err);
 			alert('An unexpected error occurred.');
@@ -148,24 +139,11 @@ const Settings = () => {
 
 	const saveBaseURL = async () => {
 		try {
-			const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-put-options`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + getJwtToken(),
-				},
-				body: JSON.stringify({
-					baseURL: baseURL,
-				}),
+			await put(`/${PLUGIN_ID}/admin-put-options`, {
+				baseURL: baseURL,
 			});
-
-			if (response.ok) {
-				// do nothing
-			} else {
-				alert('Error while saving the base URL!');
-			}
 		} catch (err) {
-			console.error(err);
+			console.error(JSON.stringify(err));
 			alert('An unexpected error occurred.');
 		}
 	};
@@ -206,7 +184,7 @@ const Settings = () => {
 						<Field.Hint />
 					</Field.Root>
 					<Button variant="default" marginRight={2} onClick={() => {
-						saveBaseURL();
+							saveBaseURL();
 					}}>Save</Button>
 				</Flex>
 			</Box>
@@ -244,39 +222,39 @@ const Settings = () => {
 					</Thead>
 					<Tbody>
 						{collectionTypes.length > 0 && collectionTypes.map((collectionType: any, index: number) => (
-							<Tr key={index}>
+								<Tr key={index}>
+									<Td>
+										<Typography variant="sigma">{collectionType.type}</Typography>
+									</Td>
+									<Td>
+										<Typography variant="sigma">{collectionType.langcode}</Typography>
+									</Td>
+									<Td>
+										<Typography variant="sigma">{collectionType.pattern}</Typography>
+									</Td>
+									<Td>
+										<Typography variant="sigma">{collectionType.priority}</Typography>
+									</Td>
+									<Td>
+										<Typography variant="sigma">{collectionType.frequency}</Typography>
+									</Td>
+									<Td>
+										<Typography variant="sigma">{collectionType.lastModified}</Typography>
+									</Td>
 								<Td>
-									<Typography variant="sigma">{collectionType.type}</Typography>
 								</Td>
-								<Td>
-									<Typography variant="sigma">{collectionType.langcode}</Typography>
-								</Td>
-								<Td>
-									<Typography variant="sigma">{collectionType.pattern}</Typography>
-								</Td>
-								<Td>
-									<Typography variant="sigma">{collectionType.priority}</Typography>
-								</Td>
-								<Td>
-									<Typography variant="sigma">{collectionType.frequency}</Typography>
-								</Td>
-								<Td>
-									<Typography variant="sigma">{collectionType.lastModified}</Typography>
-								</Td>
-								<Td>
-								</Td>
-								<Td>
-									<Flex gap={1}>
+									<Td>
+										<Flex gap={1}>
 										<IconButton onClick={() => handleEdit(collectionType, 'collectionType')} label="Edit">
-											<Pencil />
-										</IconButton>
+												<Pencil />
+											</IconButton>
 										<IconButton onClick={() => handleDelete(collectionType, 'collectionType')} label="Delete">
-											<Trash />
-										</IconButton>
-									</Flex>
-								</Td>
-							</Tr>
-						))}
+												<Trash />
+											</IconButton>
+										</Flex>
+									</Td>
+								</Tr>
+							))}
 					</Tbody>
 				</Table>
 			</Box>
@@ -305,28 +283,28 @@ const Settings = () => {
 					</Thead>
 					<Tbody>
 						{customURLs.length > 0 && customURLs.map((customURL: any, index: number) => (
-							<Tr key={index}>
-								<Td>
-									<Typography variant="sigma">{customURL.slug}</Typography>
-								</Td>
-								<Td>
-									<Typography variant="sigma">{customURL.priority}</Typography>
-								</Td>
-								<Td>
-									<Typography variant="sigma">{customURL.frequency}</Typography>
-								</Td>
-								<Td>
-									<Flex gap={1}>
-										<IconButton onClick={() => handleEdit(customURL, 'customURL')} label="Edit">
-											<Pencil />
-										</IconButton>
+								<Tr key={index}>
+									<Td>
+										<Typography variant="sigma">{customURL.slug}</Typography>
+									</Td>
+									<Td>
+										<Typography variant="sigma">{customURL.priority}</Typography>
+									</Td>
+									<Td>
+										<Typography variant="sigma">{customURL.frequency}</Typography>
+									</Td>
+									<Td>
+										<Flex gap={1}>
+											<IconButton onClick={() => handleEdit(customURL, 'customURL')} label="Edit">
+												<Pencil />
+											</IconButton>
 										<IconButton onClick={() => handleDelete(customURL, 'customURL')} label="Delete">
-											<Trash />
-										</IconButton>
-									</Flex>
-								</Td>
-							</Tr>
-						))}
+												<Trash />
+											</IconButton>
+										</Flex>
+									</Td>
+								</Tr>
+							))}
 					</Tbody>
 				</Table>
 			</Box>
@@ -345,9 +323,9 @@ const Settings = () => {
 						</Modal.Body>
 						<Modal.Footer>
 							<Button variant="tertiary" onClick={() => {
-								setDeleteModalOpen(false);
-								setEntryToDelete(null);
-								setEntryToDeleteType('');
+									setDeleteModalOpen(false);
+									setEntryToDelete(null);
+									setEntryToDeleteType('');
 							}}>
 								Cancel</Button>
 							<Button variant="danger" onClick={confirmDelete}>Delete</Button>
