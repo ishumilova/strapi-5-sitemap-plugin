@@ -2,7 +2,7 @@ import { jsx, jsxs } from "react/jsx-runtime";
 import { useState, useRef, useEffect } from "react";
 import { Modal, Grid, Field, SingleSelect, SingleSelectOption, Button, Main, Box, Typography, LinkButton, Flex, Table, Thead, Tr, Th, VisuallyHidden, Tbody, Td, IconButton, TFooter } from "@strapi/design-system";
 import { Pencil, Trash, Plus } from "@strapi/icons";
-import { P as PLUGIN_ID } from "./index-BABNitJs.mjs";
+import { P as PLUGIN_ID } from "./index-Cjq04T09.mjs";
 import { getFetchClient } from "@strapi/strapi/admin";
 function CollectionTypeModal({
   isOpen,
@@ -136,9 +136,7 @@ function CollectionTypeModal({
     if (type) {
       const getAllowedFields = async () => {
         const { data } = await get(`/${PLUGIN_ID}/admin-allowed-fields?type=${type}`);
-        setPatternHint(
-          "Possible fields: " + data.allowedFields.map((field) => `[${field}]`).join(", ")
-        );
+        setPatternHint("Possible fields: " + data.allowedFields.map((field) => `[${field}]`).join(", "));
         if (pattern === "") {
           setPattern("/" + data.slug + "/");
         }

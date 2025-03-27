@@ -113,7 +113,7 @@ export default function CollectionTypeModal({
 			setModalOpen(false);
 		} catch (err) {
 			console.error(err);
-			alert("An unexpected error occurred.");
+			alert('An unexpected error occurred.');
 		}
 	};
 
@@ -164,9 +164,7 @@ export default function CollectionTypeModal({
 			const getAllowedFields = async () => {
 				const { data } = await get(`/${PLUGIN_ID}/admin-allowed-fields?type=${type}`);
 
-				setPatternHint(
-					'Possible fields: ' + data.allowedFields.map((field: string) => `[${field}]`).join(', ')
-				);
+				setPatternHint('Possible fields: ' + data.allowedFields.map((field: string) => `[${field}]`).join(', '));
 				if (pattern === '') {
 					setPattern('/' + data.slug + '/');
 				}
@@ -271,7 +269,7 @@ export default function CollectionTypeModal({
 				<Modal.Footer>
 					<Modal.Close>
 						<Button variant="tertiary" onClick={() => {
-								setTypeToEdit('');
+							setTypeToEdit('');
 							setModalOpen(false)
 						}}>Cancel</Button>
 					</Modal.Close>

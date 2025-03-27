@@ -184,7 +184,7 @@ const Settings = () => {
 						<Field.Hint />
 					</Field.Root>
 					<Button variant="default" marginRight={2} onClick={() => {
-							saveBaseURL();
+						saveBaseURL();
 					}}>Save</Button>
 				</Flex>
 			</Box>
@@ -222,39 +222,39 @@ const Settings = () => {
 					</Thead>
 					<Tbody>
 						{collectionTypes.length > 0 && collectionTypes.map((collectionType: any, index: number) => (
-								<Tr key={index}>
-									<Td>
-										<Typography variant="sigma">{collectionType.type}</Typography>
-									</Td>
-									<Td>
-										<Typography variant="sigma">{collectionType.langcode}</Typography>
-									</Td>
-									<Td>
-										<Typography variant="sigma">{collectionType.pattern}</Typography>
-									</Td>
-									<Td>
-										<Typography variant="sigma">{collectionType.priority}</Typography>
-									</Td>
-									<Td>
-										<Typography variant="sigma">{collectionType.frequency}</Typography>
-									</Td>
-									<Td>
-										<Typography variant="sigma">{collectionType.lastModified}</Typography>
-									</Td>
+							<Tr key={index}>
 								<Td>
+									<Typography variant="sigma">{collectionType.type}</Typography>
 								</Td>
-									<Td>
-										<Flex gap={1}>
-										<IconButton onClick={() => handleEdit(collectionType, 'collectionType')} label="Edit">
-												<Pencil />
-											</IconButton>
-										<IconButton onClick={() => handleDelete(collectionType, 'collectionType')} label="Delete">
-												<Trash />
-											</IconButton>
-										</Flex>
-									</Td>
-								</Tr>
-							))}
+								<Td>
+									<Typography variant="sigma">{collectionType.langcode}</Typography>
+								</Td>
+								<Td>
+									<Typography variant="sigma">{collectionType.pattern}</Typography>
+								</Td>
+								<Td>
+									<Typography variant="sigma">{collectionType.priority}</Typography>
+								</Td>
+								<Td>
+									<Typography variant="sigma">{collectionType.frequency}</Typography>
+								</Td>
+								<Td>
+									<Typography variant="sigma">{collectionType.lastModified}</Typography>
+								</Td>
+							<Td>
+							</Td>
+								<Td>
+									<Flex gap={1}>
+									<IconButton onClick={() => handleEdit(collectionType, 'collectionType')} label="Edit">
+											<Pencil />
+										</IconButton>
+									<IconButton onClick={() => handleDelete(collectionType, 'collectionType')} label="Delete">
+											<Trash />
+										</IconButton>
+									</Flex>
+								</Td>
+							</Tr>
+						))}
 					</Tbody>
 				</Table>
 			</Box>
@@ -283,28 +283,28 @@ const Settings = () => {
 					</Thead>
 					<Tbody>
 						{customURLs.length > 0 && customURLs.map((customURL: any, index: number) => (
-								<Tr key={index}>
-									<Td>
-										<Typography variant="sigma">{customURL.slug}</Typography>
-									</Td>
-									<Td>
-										<Typography variant="sigma">{customURL.priority}</Typography>
-									</Td>
-									<Td>
-										<Typography variant="sigma">{customURL.frequency}</Typography>
-									</Td>
-									<Td>
-										<Flex gap={1}>
-											<IconButton onClick={() => handleEdit(customURL, 'customURL')} label="Edit">
-												<Pencil />
-											</IconButton>
-										<IconButton onClick={() => handleDelete(customURL, 'customURL')} label="Delete">
-												<Trash />
-											</IconButton>
-										</Flex>
-									</Td>
-								</Tr>
-							))}
+							<Tr key={index}>
+								<Td>
+									<Typography variant="sigma">{customURL.slug}</Typography>
+								</Td>
+								<Td>
+									<Typography variant="sigma">{customURL.priority}</Typography>
+								</Td>
+								<Td>
+									<Typography variant="sigma">{customURL.frequency}</Typography>
+								</Td>
+								<Td>
+									<Flex gap={1}>
+										<IconButton onClick={() => handleEdit(customURL, 'customURL')} label="Edit">
+											<Pencil />
+										</IconButton>
+									<IconButton onClick={() => handleDelete(customURL, 'customURL')} label="Delete">
+											<Trash />
+										</IconButton>
+									</Flex>
+								</Td>
+							</Tr>
+						))}
 					</Tbody>
 				</Table>
 			</Box>
@@ -323,9 +323,9 @@ const Settings = () => {
 						</Modal.Body>
 						<Modal.Footer>
 							<Button variant="tertiary" onClick={() => {
-									setDeleteModalOpen(false);
-									setEntryToDelete(null);
-									setEntryToDeleteType('');
+								setDeleteModalOpen(false);
+								setEntryToDelete(null);
+								setEntryToDeleteType('');
 							}}>
 								Cancel</Button>
 							<Button variant="danger" onClick={confirmDelete}>Delete</Button>

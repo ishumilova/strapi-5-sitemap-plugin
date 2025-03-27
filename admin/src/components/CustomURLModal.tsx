@@ -33,11 +33,11 @@ export default function CustomURLModal({
 	const { put, post } = getFetchClient();
 
 	const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (event: React.ChangeEvent<HTMLInputElement>) => {
-			setter(event.target.value);
-		};
+		setter(event.target.value);
+	};
 	const handleSelectChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (event: string) => {
-			setter(event);
-		};
+		setter(event);
+	};
 	const validateFields = () => {
 		if (!slug) {
 			slugRef.current?.focus();
@@ -80,7 +80,7 @@ export default function CustomURLModal({
 			setModalOpen(false);
 		} catch (err) {
 			console.error(err);
-			alert("An unexpected error occurred.");
+			alert('An unexpected error occurred.');
 		}
 	};
 
@@ -160,7 +160,7 @@ export default function CustomURLModal({
 				<Modal.Footer>
 					<Modal.Close>
 						<Button variant="tertiary" onClick={() => {
-								setTypeToEdit('');
+							setTypeToEdit('');
 							setModalOpen(false)
 						}}>Cancel</Button>
 					</Modal.Close>

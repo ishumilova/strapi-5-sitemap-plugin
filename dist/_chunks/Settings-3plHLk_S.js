@@ -4,7 +4,7 @@ const jsxRuntime = require("react/jsx-runtime");
 const react = require("react");
 const designSystem = require("@strapi/design-system");
 const icons = require("@strapi/icons");
-const index = require("./index-DIuqwRCS.js");
+const index = require("./index-lgR_YKCY.js");
 const admin = require("@strapi/strapi/admin");
 function CollectionTypeModal({
   isOpen,
@@ -138,9 +138,7 @@ function CollectionTypeModal({
     if (type) {
       const getAllowedFields = async () => {
         const { data } = await get(`/${index.PLUGIN_ID}/admin-allowed-fields?type=${type}`);
-        setPatternHint(
-          "Possible fields: " + data.allowedFields.map((field) => `[${field}]`).join(", ")
-        );
+        setPatternHint("Possible fields: " + data.allowedFields.map((field) => `[${field}]`).join(", "));
         if (pattern === "") {
           setPattern("/" + data.slug + "/");
         }
