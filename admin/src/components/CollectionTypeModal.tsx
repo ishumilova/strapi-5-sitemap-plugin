@@ -4,15 +4,30 @@ import { Field } from "@strapi/design-system";
 import { Modal } from "@strapi/design-system";
 import React, {useEffect, useRef, useState} from "react";
 import {PLUGIN_ID} from "../pluginId";
-import {getJwtToken, BASE_URL} from "../utils/helpers";
-
+import { getFetchClient } from '@strapi/strapi/admin';
 interface CollectionType {
 	uid: string;
 	singularName: string;
 	displayName: string;
 }
 
-export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollectionTypeAdded, typeToEdit = null, setTypeToEdit, editID = '', setEditID}: {isOpen: boolean, setModalOpen: React.Dispatch<React.SetStateAction<boolean>>, setNewCollectionTypeAdded: React.Dispatch<React.SetStateAction<boolean>>, typeToEdit: any | null, setTypeToEdit: React.Dispatch<React.SetStateAction<string>>, editID: string, setEditID: React.Dispatch<React.SetStateAction<string>>}) {
+export default function CollectionTypeModal({
+	isOpen,
+	setModalOpen,
+	setNewCollectionTypeAdded,
+	typeToEdit = null,
+	setTypeToEdit,
+	editID = '',
+	setEditID,
+}: {
+	isOpen: boolean;
+	setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+	setNewCollectionTypeAdded: React.Dispatch<React.SetStateAction<boolean>>;
+	typeToEdit: any | null;
+	setTypeToEdit: React.Dispatch<React.SetStateAction<string>>;
+	editID: string;
+	setEditID: React.Dispatch<React.SetStateAction<string>>;
+}) {
 	const [type, setType] = useState('');
 	const [langcode, setLangcode] = useState('');
 	const [pattern, setPattern] = useState('');
@@ -31,12 +46,14 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 	const frequencyRef = useRef<HTMLInputElement>(null);
 	const lastModifiedRef = useRef<HTMLInputElement>(null);
 
+	const { get, put, post } = getFetchClient();
+
 	const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (event: React.ChangeEvent<HTMLInputElement>) => {
-		setter(event.target.value);
-	};
+			setter(event.target.value);
+		};
 	const handleSelectChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (event: string) => {
-		setter(event);
-	};
+			setter(event);
+		};
 	const validateFields = () => {
 		if (!type) {
 			typeRef.current?.focus();
@@ -63,40 +80,37 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 
 		try {
 			if (typeToEdit && editID) {
-				response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin`, {
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-						'Authorization': 'Bearer ' + getJwtToken(),
-					},
-					body: JSON.stringify({type, langcode, pattern, priority, frequency, lastModified, id: editID}),
+				response = await put(`/${PLUGIN_ID}/admin`, {
+					type,
+					langcode,
+					pattern,
+					priority,
+					frequency,
+					lastModified,
+					id: editID,
 				});
 			} else {
-				response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin`, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						'Authorization': 'Bearer ' + getJwtToken(),
-					},
-					body: JSON.stringify({type, langcode, pattern, priority, lastModified, frequency}),
+				response = await post(`/${PLUGIN_ID}/admin`, {
+					type,
+					langcode,
+					pattern,
+					priority,
+					lastModified,
+					frequency,
 				});
 			}
 
-			if (response.ok) {
-				const data = await response.json();
-				setNewCollectionTypeAdded(true);
-				setType('');
-				setLangcode('');
-				setPattern('');
-				setPriority('');
-				setFrequency('');
-				setLastModified('false');
-				setEditID('');
-				setTypeToEdit('');
-				setModalOpen(false);
-			} else {
-				alert('Error while saving!');
-			}
+			const data = response.data;
+			setNewCollectionTypeAdded(true);
+			setType('');
+			setLangcode('');
+			setPattern('');
+			setPriority('');
+			setFrequency('');
+			setLastModified('false');
+			setEditID('');
+			setTypeToEdit('');
+			setModalOpen(false);
 		} catch (err) {
 			console.error(err);
 			alert('An unexpected error occurred.');
@@ -122,43 +136,24 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 		}
 	}, [typeToEdit]);
 
-
 	useEffect(() => {
 		const getContentTypes = async () => {
-			const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-get-content-types`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + getJwtToken(),
-				},
-			});
-
-			if (response.ok) {
-				const data = await response.json();
+			try {
+				const { data } = await get(`/${PLUGIN_ID}/admin-get-content-types`);
 				setCollectionTypes(data.collectionTypes);
-			}
-			else {
+			} catch (error) {
 				alert('Error while loading!');
 			}
-		}
+		};
 
 		const getLocales = async () => {
-			const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-get-locales`, {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					'Authorization': 'Bearer ' + getJwtToken(),
-				},
-			});
-
-			if (response.ok) {
-				const data = await response.json();
+			try {
+				const { data } = await get(`/${PLUGIN_ID}/admin-get-locales`);
 				setLocales(data);
-			}
-			else {
+			} catch (error) {
 				alert('Error while loading!');
 			}
-		}
+		};
 
 		getContentTypes();
 		getLocales();
@@ -167,21 +162,13 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 	useEffect(() => {
 		if (type) {
 			const getAllowedFields = async () => {
-				const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-allowed-fields?type=${type}`, {
-					method: 'GET',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer ' + getJwtToken(),
-					},
-				});
-
-				const data = await response.json();
+				const { data } = await get(`/${PLUGIN_ID}/admin-allowed-fields?type=${type}`);
 
 				setPatternHint('Possible fields: ' + data.allowedFields.map((field: string) => `[${field}]`).join(', '));
 				if (pattern === '') {
 					setPattern('/' + data.slug + '/');
 				}
-			}
+			};
 			getAllowedFields();
 		}
 	}, [type]);
@@ -193,8 +180,6 @@ export default function CollectionTypeModal({isOpen, setModalOpen, setNewCollect
 			setModalOpen(false);
 		}
 	};
-
-
 
 	return (
 		<Modal.Root open={isOpen} onOpenChange={(e: boolean) => handleOnOpenChange(e)}>

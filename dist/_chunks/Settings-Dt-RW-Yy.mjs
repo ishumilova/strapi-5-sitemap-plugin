@@ -2,28 +2,17 @@ import { jsx, jsxs } from "react/jsx-runtime";
 import { useState, useRef, useEffect } from "react";
 import { Modal, Grid, Field, SingleSelect, SingleSelectOption, Button, Main, Box, Typography, LinkButton, Flex, Table, Thead, Tr, Th, VisuallyHidden, Tbody, Td, IconButton, TFooter } from "@strapi/design-system";
 import { Pencil, Trash, Plus } from "@strapi/icons";
-import { P as PLUGIN_ID } from "./index-BtcPPKmS.mjs";
-const BASE_URL = () => process.env.STRAPI_ADMIN_BACKEND_URL && process.env.STRAPI_ADMIN_BACKEND_URL !== "/" ? process.env.STRAPI_ADMIN_BACKEND_URL : "";
-const fetchFromAPI = async (endpoint, method = "GET") => {
-  const jwtToken = getJwtToken();
-  const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/${endpoint}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${jwtToken}`
-    }
-  });
-  if (!response.ok) {
-    console.error(`Error fetching from ${endpoint}:`, response.statusText);
-    return null;
-  }
-  return response.json();
-};
-const getJwtToken = () => {
-  const jwtToken = localStorage.getItem("jwtToken") || sessionStorage.getItem("jwtToken");
-  return jwtToken ? `${jwtToken.replaceAll('"', "")}` : "";
-};
-function CollectionTypeModal({ isOpen, setModalOpen, setNewCollectionTypeAdded, typeToEdit = null, setTypeToEdit, editID = "", setEditID }) {
+import { P as PLUGIN_ID } from "./index-Cjq04T09.mjs";
+import { getFetchClient } from "@strapi/strapi/admin";
+function CollectionTypeModal({
+  isOpen,
+  setModalOpen,
+  setNewCollectionTypeAdded,
+  typeToEdit = null,
+  setTypeToEdit,
+  editID = "",
+  setEditID
+}) {
   const [type, setType] = useState("");
   const [langcode, setLangcode] = useState("");
   const [pattern, setPattern] = useState("");
@@ -39,6 +28,7 @@ function CollectionTypeModal({ isOpen, setModalOpen, setNewCollectionTypeAdded, 
   const priorityRef = useRef(null);
   const frequencyRef = useRef(null);
   const lastModifiedRef = useRef(null);
+  const { get, put, post } = getFetchClient();
   const handleInputChange = (setter) => (event) => {
     setter(event.target.value);
   };
@@ -69,39 +59,36 @@ function CollectionTypeModal({ isOpen, setModalOpen, setNewCollectionTypeAdded, 
     let response = null;
     try {
       if (typeToEdit && editID) {
-        response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + getJwtToken()
-          },
-          body: JSON.stringify({ type, langcode, pattern, priority, frequency, lastModified, id: editID })
+        response = await put(`/${PLUGIN_ID}/admin`, {
+          type,
+          langcode,
+          pattern,
+          priority,
+          frequency,
+          lastModified,
+          id: editID
         });
       } else {
-        response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + getJwtToken()
-          },
-          body: JSON.stringify({ type, langcode, pattern, priority, lastModified, frequency })
+        response = await post(`/${PLUGIN_ID}/admin`, {
+          type,
+          langcode,
+          pattern,
+          priority,
+          lastModified,
+          frequency
         });
       }
-      if (response.ok) {
-        const data = await response.json();
-        setNewCollectionTypeAdded(true);
-        setType("");
-        setLangcode("");
-        setPattern("");
-        setPriority("");
-        setFrequency("");
-        setLastModified("false");
-        setEditID("");
-        setTypeToEdit("");
-        setModalOpen(false);
-      } else {
-        alert("Error while saving!");
-      }
+      const data = response.data;
+      setNewCollectionTypeAdded(true);
+      setType("");
+      setLangcode("");
+      setPattern("");
+      setPriority("");
+      setFrequency("");
+      setLastModified("false");
+      setEditID("");
+      setTypeToEdit("");
+      setModalOpen(false);
     } catch (err) {
       console.error(err);
       alert("An unexpected error occurred.");
@@ -127,32 +114,18 @@ function CollectionTypeModal({ isOpen, setModalOpen, setNewCollectionTypeAdded, 
   }, [typeToEdit]);
   useEffect(() => {
     const getContentTypes = async () => {
-      const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-get-content-types`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + getJwtToken()
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
+      try {
+        const { data } = await get(`/${PLUGIN_ID}/admin-get-content-types`);
         setCollectionTypes(data.collectionTypes);
-      } else {
+      } catch (error) {
         alert("Error while loading!");
       }
     };
     const getLocales = async () => {
-      const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-get-locales`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + getJwtToken()
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
+      try {
+        const { data } = await get(`/${PLUGIN_ID}/admin-get-locales`);
         setLocales(data);
-      } else {
+      } catch (error) {
         alert("Error while loading!");
       }
     };
@@ -162,14 +135,7 @@ function CollectionTypeModal({ isOpen, setModalOpen, setNewCollectionTypeAdded, 
   useEffect(() => {
     if (type) {
       const getAllowedFields = async () => {
-        const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-allowed-fields?type=${type}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + getJwtToken()
-          }
-        });
-        const data = await response.json();
+        const { data } = await get(`/${PLUGIN_ID}/admin-allowed-fields?type=${type}`);
         setPatternHint("Possible fields: " + data.allowedFields.map((field) => `[${field}]`).join(", "));
         if (pattern === "") {
           setPattern("/" + data.slug + "/");
@@ -253,13 +219,22 @@ function CollectionTypeModal({ isOpen, setModalOpen, setNewCollectionTypeAdded, 
     ] })
   ] }) });
 }
-function CustomURLModal({ isOpen, setModalOpen, setNewCustomURLAdded, typeToEdit = "", setTypeToEdit, editID = "", setEditID }) {
+function CustomURLModal({
+  isOpen,
+  setModalOpen,
+  setNewCustomURLAdded,
+  typeToEdit = "",
+  setTypeToEdit,
+  editID = "",
+  setEditID
+}) {
   const [slug, setSlug] = useState("");
   const [priority, setPriority] = useState("");
   const [frequency, setFrequency] = useState("");
   const slugRef = useRef(null);
   const priorityRef = useRef(null);
   const frequencyRef = useRef(null);
+  const { put, post } = getFetchClient();
   const handleInputChange = (setter) => (event) => {
     setter(event.target.value);
   };
@@ -286,36 +261,23 @@ function CustomURLModal({ isOpen, setModalOpen, setNewCustomURLAdded, typeToEdit
     let response = null;
     try {
       if (typeToEdit && editID) {
-        response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-custom-urls`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + getJwtToken()
-          },
-          body: JSON.stringify({ slug, priority, frequency, id: editID })
+        response = await put(`/${PLUGIN_ID}/admin-custom-urls`, {
+          slug,
+          priority,
+          frequency,
+          id: editID
         });
       } else {
-        response = await fetch(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${PLUGIN_ID}/admin-custom-urls`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + getJwtToken()
-          },
-          body: JSON.stringify({ slug, priority, frequency })
-        });
+        response = await post(`/${PLUGIN_ID}/admin-custom-urls`, { slug, priority, frequency });
       }
-      if (response.ok) {
-        const data = await response.json();
-        setNewCustomURLAdded(true);
-        setSlug("");
-        setPriority("");
-        setFrequency("");
-        setEditID("");
-        setTypeToEdit("");
-        setModalOpen(false);
-      } else {
-        alert("Error while saving!");
-      }
+      const data = response.data;
+      setNewCustomURLAdded(true);
+      setSlug("");
+      setPriority("");
+      setFrequency("");
+      setEditID("");
+      setTypeToEdit("");
+      setModalOpen(false);
     } catch (err) {
       console.error(err);
       alert("An unexpected error occurred.");
@@ -400,24 +362,27 @@ const Settings = () => {
   const [entryToDelete, setEntryToDelete] = useState(null);
   const [entryToDeleteType, setEntryToDeleteType] = useState("");
   const [baseURL, setBaseURL] = useState("");
-  const [jwtToken, setJwtToken] = useState("");
+  const { get, put, del } = getFetchClient();
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchFromAPI("admin");
-      if (data) {
+      try {
+        const { data } = await get(`/${PLUGIN_ID}/admin`);
         setCollectionTypes(data.results);
+      } catch (err) {
+        console.error(err);
+        alert("An unexpected error occurred");
       }
     };
     fetchData();
     const fetchBaseUrl = async () => {
-      const data = await fetchFromAPI("admin-get-options");
-      if (data?.baseUrl) {
+      const { data } = await get(`/${PLUGIN_ID}/admin-get-options`);
+      if (data.baseUrl) {
         setBaseURL(data.baseUrl);
       }
     };
     fetchBaseUrl();
     const fetchCustomURLs = async () => {
-      const data = await fetchFromAPI("admin-custom-urls");
+      const { data } = await get(`/${PLUGIN_ID}/admin-custom-urls`);
       if (data) {
         setCustomURLs(data.results);
       }
@@ -427,7 +392,7 @@ const Settings = () => {
   useEffect(() => {
     if (newCollectionTypeAdded) {
       const fetchData = async () => {
-        const data = await fetchFromAPI("admin");
+        const { data } = await get(`/${PLUGIN_ID}/admin`);
         if (data) {
           setCollectionTypes(data.results);
         }
@@ -439,7 +404,7 @@ const Settings = () => {
   useEffect(() => {
     if (newCustomURLAdded) {
       const fetchData = async () => {
-        const data = await fetchFromAPI("admin-custom-urls");
+        const { data } = await get(`/${PLUGIN_ID}/admin-custom-urls`);
         if (data) {
           setCustomURLs(data.results);
         }
@@ -477,25 +442,15 @@ const Settings = () => {
   const confirmDelete = async () => {
     const url = entryToDeleteType === "collection" ? "admin" : "admin-custom-urls";
     try {
-      const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/${url}?id=${entryToDelete}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + getJwtToken()
-        }
-      });
-      if (response.ok) {
-        if (entryToDeleteType === "collection") {
-          setNewCollectionTypeAdded(true);
-        } else if (entryToDeleteType === "customURL") {
-          setNewCustomURLAdded(true);
-        }
-        setDeleteModalOpen(false);
-        setEntryToDelete(null);
-        setEntryToDeleteType("");
-      } else {
-        alert("Error while deleting!");
+      await del(`/${PLUGIN_ID}/${url}?id=${entryToDelete}`);
+      if (entryToDeleteType === "collection") {
+        setNewCollectionTypeAdded(true);
+      } else if (entryToDeleteType === "customURL") {
+        setNewCustomURLAdded(true);
       }
+      setDeleteModalOpen(false);
+      setEntryToDelete(null);
+      setEntryToDeleteType("");
     } catch (err) {
       console.error(err);
       alert("An unexpected error occurred.");
@@ -506,22 +461,11 @@ const Settings = () => {
   };
   const saveBaseURL = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/${PLUGIN_ID}/admin-put-options`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + getJwtToken()
-        },
-        body: JSON.stringify({
-          baseURL
-        })
+      await put(`/${PLUGIN_ID}/admin-put-options`, {
+        baseURL
       });
-      if (response.ok) {
-      } else {
-        alert("Error while saving the base URL!");
-      }
     } catch (err) {
-      console.error(err);
+      console.error(JSON.stringify(err));
       alert("An unexpected error occurred.");
     }
   };
