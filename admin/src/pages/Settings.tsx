@@ -216,6 +216,9 @@ const Settings = () => {
 								<Typography variant="sigma">Add last modification date</Typography>
 							</Th>
 							<Th>
+								<Typography variant="sigma">Thumbnail</Typography>
+							</Th>
+							<Th>
 								<VisuallyHidden>Actions</VisuallyHidden>
 							</Th>
 						</Tr>
@@ -240,6 +243,9 @@ const Settings = () => {
 								</Td>
 								<Td>
 									<Typography variant="sigma">{collectionType.lastModified}</Typography>
+								</Td>
+								<Td>
+									<Typography variant="sigma">{collectionType.thumbnail}</Typography>
 								</Td>
 							<Td>
 							</Td>

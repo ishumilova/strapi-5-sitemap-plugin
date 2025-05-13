@@ -34,6 +34,8 @@ export default function CollectionTypeModal({
 	const [priority, setPriority] = useState('');
 	const [frequency, setFrequency] = useState('');
 	const [lastModified, setLastModified] = useState('false');
+	const [thumbnail, setThumbnail] = useState('');
+	const [possibleThumbnailFields, setPossibleThumbnailFields] = useState<any[]>([]);
 
 	const [collectionTypes, setCollectionTypes] = useState<CollectionType[]>([]);
 	const [locales, setLocales] = useState<any[]>([]);
@@ -45,6 +47,7 @@ export default function CollectionTypeModal({
 	const priorityRef = useRef<HTMLInputElement>(null);
 	const frequencyRef = useRef<HTMLInputElement>(null);
 	const lastModifiedRef = useRef<HTMLInputElement>(null);
+	const thumbnailRef = useRef<HTMLInputElement>(null);
 
 	const { get, put, post } = getFetchClient();
 
@@ -87,6 +90,7 @@ export default function CollectionTypeModal({
 					priority,
 					frequency,
 					lastModified,
+					thumbnail,
 					id: editID,
 				});
 			} else {
@@ -97,6 +101,7 @@ export default function CollectionTypeModal({
 					priority,
 					lastModified,
 					frequency,
+					thumbnail,
 				});
 			}
 
@@ -108,6 +113,7 @@ export default function CollectionTypeModal({
 			setPriority('');
 			setFrequency('');
 			setLastModified('false');
+			setThumbnail('');
 			setEditID('');
 			setTypeToEdit('');
 			setModalOpen(false);
@@ -125,6 +131,7 @@ export default function CollectionTypeModal({
 			setPriority(typeToEdit.priority?.toString() || '');
 			setFrequency(typeToEdit.frequency || '');
 			setLastModified(typeToEdit.lastModified || 'false');
+			setThumbnail(typeToEdit.thumbnail || '');
 		} else {
 			setType('');
 			setLangcode('');
@@ -132,6 +139,7 @@ export default function CollectionTypeModal({
 			setPriority('');
 			setFrequency('');
 			setLastModified('false');
+			setThumbnail('');
 			setEditID('');
 		}
 	}, [typeToEdit]);
@@ -163,6 +171,7 @@ export default function CollectionTypeModal({
 		if (type) {
 			const getAllowedFields = async () => {
 				const { data } = await get(`/${PLUGIN_ID}/admin-allowed-fields?type=${type}`);
+				setPossibleThumbnailFields(data.allowedFields);
 
 				setPatternHint('Possible fields: ' + data.allowedFields.map((field: string) => `[${field}]`).join(', '));
 				if (pattern === '') {
@@ -203,10 +212,10 @@ export default function CollectionTypeModal({
 							</Field.Root>
 						</Grid.Item>
 						<Grid.Item>
-							<Field.Root required width='100%' hint="Select a language or leave empty for all languages">
+							<Field.Root required width='100%' hint="Select a language or leave empty for the default language">
 								<Field.Label>Lang Code</Field.Label>
 								<SingleSelect name="langcode" onChange={handleSelectChange(setLangcode)} ref={langcodeRef} value={langcode} placeholder="Select Langcode" disabled={type === ''}>
-									<SingleSelectOption value="-">None</SingleSelectOption>
+									<SingleSelectOption value="-">Default Language</SingleSelectOption>
 									{locales.map((locale) => (
 										<SingleSelectOption key={locale.id} value={locale.code}>{locale.code}</SingleSelectOption>
 									))}
@@ -260,6 +269,18 @@ export default function CollectionTypeModal({
 								<SingleSelect name="lastModified" required onChange={handleSelectChange(setLastModified)} ref={lastModifiedRef} value={lastModified} placeholder="Select True or False" disabled={type === ''}>
 									<SingleSelectOption value="false">False</SingleSelectOption>
 									<SingleSelectOption value="true">True</SingleSelectOption>
+								</SingleSelect>
+								<Field.Hint />
+							</Field.Root>
+						</Grid.Item>
+						<Grid.Item>
+							<Field.Root width='100%' hint="Optional thumbnail image">
+								<Field.Label>Thumbnail</Field.Label>
+								<SingleSelect name="thumbnail" onChange={handleSelectChange(setThumbnail)} ref={thumbnailRef} value={thumbnail} placeholder="Select Thumbnail" disabled={type === ''}>
+									<SingleSelectOption value="-">None</SingleSelectOption>
+									{possibleThumbnailFields.map((field) => (
+											<SingleSelectOption key={field} value={field}>{field}</SingleSelectOption>
+									))}
 								</SingleSelect>
 								<Field.Hint />
 							</Field.Root>

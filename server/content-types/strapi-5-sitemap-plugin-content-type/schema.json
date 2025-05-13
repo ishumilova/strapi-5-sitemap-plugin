@@ -35,6 +35,9 @@
 		},
 		"lastModified": {
 			"type": "string"
+		},
+		"thumbnail": {
+			"type": "string"
 		}
 	}
 }

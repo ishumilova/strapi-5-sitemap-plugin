@@ -62,6 +62,9 @@ const attributes$2 = {
   },
   lastModified: {
     type: "string"
+  },
+  thumbnail: {
+    type: "string"
   }
 };
 const schema$2 = {
@@ -346,14 +349,16 @@ const service = ({ strapi }) => ({
       const collections = [];
       const sitemap = [];
       for (const sitemapEntry of sitemapEntries) {
+        const populate = sitemapEntry.thumbnail ? { [sitemapEntry.thumbnail]: true } : void 0;
         const entries = await strapi.documents(`api::${sitemapEntry.type}.${sitemapEntry.type}`).findMany({
           locale: sitemapEntry.langcode === "-" ? void 0 : sitemapEntry.langcode,
-          status: "published"
+          status: "published",
+          populate
         });
         collections.push({ ...sitemapEntry, entries });
       }
       collections.forEach((collection) => {
-        const { pattern, priority, frequency, entries, lastModified } = collection;
+        const { pattern, priority, frequency, entries, lastModified, thumbnail } = collection;
         outerloop: for (const entry of entries) {
           let url = pattern;
           const placeholders = pattern.match(/\[([^\]]+)\]/g) || [];
@@ -370,10 +375,19 @@ const service = ({ strapi }) => ({
             url,
             priority,
             frequency,
-            lastmod: void 0
+            lastmod: void 0,
+            thumbnail: void 0,
+            thumbnailTitle: void 0
           };
           if (lastModified === "true") {
             sitemapEntry.lastmod = entry.updatedAt;
+          }
+          if (thumbnail !== "") {
+            const media = Array.isArray(entry[thumbnail]) ? entry[thumbnail][0] : entry[thumbnail];
+            if (media?.url) {
+              sitemapEntry.thumbnail = media.url;
+              sitemapEntry.thumbnailTitle = media.name;
+            }
           }
           sitemap.push(sitemapEntry);
         }
@@ -392,9 +406,10 @@ const service = ({ strapi }) => ({
 					            <priority>${entry.priority}</priority>
 					            <changefreq>${entry.frequency}</changefreq>
 					            ${entry.lastmod ? `<lastmod>${entry.lastmod}</lastmod>` : ""}
+					            ${entry.thumbnail ? `<image:image><image:loc>${entry.thumbnail}</image:loc><image:title>${entry.thumbnailTitle}</image:title></image:image>` : ""}
 					        </url>`
         ).join("");
-        return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urlSet}</urlset>`;
+        return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${urlSet}</urlset>`;
       };
       return generateXML(sitemap);
     } catch (error) {
@@ -486,7 +501,8 @@ const service = ({ strapi }) => ({
           pattern: data.pattern,
           priority: data.priority,
           frequency: data.frequency,
-          lastModified: data.lastModified
+          lastModified: data.lastModified,
+          thumbnail: data.thumbnail
         }
       });
       return {
@@ -632,3 +648,4 @@ const index = {
   middlewares
 };
 module.exports = index;
+//# sourceMappingURL=index.js.map

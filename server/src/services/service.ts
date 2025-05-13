@@ -12,15 +12,19 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 			const sitemap = [];
 
 			for (const sitemapEntry of sitemapEntries) {
+				const populate = sitemapEntry.thumbnail ? { [sitemapEntry.thumbnail]: true } : undefined;
+
 				const entries = await strapi.documents(`api::${sitemapEntry.type}.${sitemapEntry.type}`).findMany({
 					locale: sitemapEntry.langcode === '-' ? undefined : sitemapEntry.langcode,
 					status: 'published',
+					populate
 				});
+
 				collections.push({ ...sitemapEntry, entries });
 			}
 
 			collections.forEach((collection) => {
-				const { pattern, priority, frequency, entries, lastModified } = collection;
+				const { pattern, priority, frequency, entries, lastModified, thumbnail } = collection;
 				outerloop: for (const entry of entries) {
 					let url = pattern;
 
@@ -41,10 +45,21 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 						priority,
 						frequency,
 						lastmod: undefined,
+						thumbnail: undefined,
+						thumbnailTitle: undefined,
 					};
 
 					if (lastModified === 'true') {
 						sitemapEntry.lastmod = entry.updatedAt;
+					}
+
+					if (thumbnail !== '') {
+						const media = Array.isArray(entry[thumbnail]) ? entry[thumbnail][0] : entry[thumbnail];
+
+						if (media?.url) {
+							sitemapEntry.thumbnail = media.url;
+							sitemapEntry.thumbnailTitle = media.name;
+						}
 					}
 
 					sitemap.push(sitemapEntry);
@@ -68,10 +83,11 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 					            <priority>${entry.priority}</priority>
 					            <changefreq>${entry.frequency}</changefreq>
 					            ${entry.lastmod ? `<lastmod>${entry.lastmod}</lastmod>` : ''}
+					            ${entry.thumbnail ? `<image:image><image:loc>${entry.thumbnail}</image:loc><image:title>${entry.thumbnailTitle}</image:title></image:image>` : ''}
 					        </url>`
 					).join('');
 
-				return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urlSet}</urlset>`;
+				return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${urlSet}</urlset>`;
 			};
 
 			return generateXML(sitemap);
@@ -187,6 +203,7 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 					priority: data.priority,
 					frequency: data.frequency,
 					lastModified: data.lastModified,
+					thumbnail: data.thumbnail,
 				},
 			});
 
