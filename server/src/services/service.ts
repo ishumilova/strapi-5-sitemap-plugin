@@ -12,7 +12,8 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 			const sitemap = [];
 
 			for (const sitemapEntry of sitemapEntries) {
-				const populate = sitemapEntry.thumbnail ? { [sitemapEntry.thumbnail]: true } : undefined;
+				const isValidThumbnail = sitemapEntry.thumbnail && sitemapEntry.thumbnail !== '-';
+				const populate = isValidThumbnail ? { [sitemapEntry.thumbnail]: true } : undefined;
 
 				const entries = await strapi.documents(`api::${sitemapEntry.type}.${sitemapEntry.type}`).findMany({
 					locale: sitemapEntry.langcode === '-' ? undefined : sitemapEntry.langcode,

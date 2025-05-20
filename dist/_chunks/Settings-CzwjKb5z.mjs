@@ -575,4 +575,3 @@ const Settings = () => {
 export {
   Settings as default
 };
-//# sourceMappingURL=Settings-CzwjKb5z.mjs.map

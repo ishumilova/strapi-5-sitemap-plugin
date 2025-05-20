@@ -72,4 +72,3 @@ export {
   PLUGIN_ID as P,
   index as i
 };
-//# sourceMappingURL=index-Bkf55MsN.mjs.map

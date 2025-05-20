@@ -349,7 +349,8 @@ const service = ({ strapi }) => ({
       const collections = [];
       const sitemap = [];
       for (const sitemapEntry of sitemapEntries) {
-        const populate = sitemapEntry.thumbnail ? { [sitemapEntry.thumbnail]: true } : void 0;
+        const isValidThumbnail = sitemapEntry.thumbnail && sitemapEntry.thumbnail !== "-";
+        const populate = isValidThumbnail ? { [sitemapEntry.thumbnail]: true } : void 0;
         const entries = await strapi.documents(`api::${sitemapEntry.type}.${sitemapEntry.type}`).findMany({
           locale: sitemapEntry.langcode === "-" ? void 0 : sitemapEntry.langcode,
           status: "published",
@@ -648,4 +649,3 @@ const index = {
   middlewares
 };
 module.exports = index;
-//# sourceMappingURL=index.js.map
