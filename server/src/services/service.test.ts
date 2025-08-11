@@ -28,6 +28,12 @@ describe('Sitemap service', () => {
 									priority: 0.1,
 									frequency: 'daily',
 								},
+								{
+									pattern: 'test4/[nested.url]/[url]',
+									type: 'test4',
+									priority: 0.1,
+									frequency: 'daily',
+								},
 							]),
 						};
 					case 'api::test.test':
@@ -50,6 +56,12 @@ describe('Sitemap service', () => {
 							findMany: vi
 								.fn()
 								.mockReturnValue([{ nested: { url: 'parent-url' }, url: 'child-url' }]),
+						};
+					case 'api::test4.test4':
+						return {
+							findMany: vi
+								.fn()
+								.mockReturnValue([{ nested: null, url: 'child-url' }]),
 						};
 					case 'plugin::strapi-5-sitemap-plugin.strapi-5-sitemap-plugin-option':
 						return {
@@ -121,6 +133,11 @@ describe('Sitemap service', () => {
           </url>
           <url>
               <loc>https://example.com/test3/parent-url/child-url</loc>
+              <priority>0.1</priority>
+              <changefreq>daily</changefreq>
+          </url>
+          <url>
+              <loc>https://example.com/test4/child-url</loc>
               <priority>0.1</priority>
               <changefreq>daily</changefreq>
           </url>

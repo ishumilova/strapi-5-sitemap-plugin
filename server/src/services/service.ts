@@ -88,6 +88,8 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 				outerloop: for (const entry of entries) {
 					let url = pattern;
 					const placeholders = pattern.match(/\[([^\]]+)]/g) || [];
+					let hasInvalidPlaceholder = false;
+
 					for (const placeholder of placeholders) {
 						const key = placeholder.replace(/[\[\]]/g, '');
 
@@ -101,11 +103,22 @@ const service = ({strapi}: { strapi: Core.Strapi }) => ({
 
 						if (value !== null && value !== undefined) {
 							url = url.replace(placeholder, value);
+						} else if (key.includes('.')) {
+							// For nested references, replace them with empty string to allow URL generation
+							url = url.replace(placeholder, '');
 						} else {
-							break outerloop;
+							// For direct field references, skip this entry entirely
+							hasInvalidPlaceholder = true;
+							break;
 						}
 					}
 
+					if (hasInvalidPlaceholder) {
+						continue;
+					}
+
+					// Clean up any double slashes that might result from empty replacements
+					url = url.replace(/\/+/g, '/');
 					url = baseURL + url;
 
 					const sitemapEntry = {
